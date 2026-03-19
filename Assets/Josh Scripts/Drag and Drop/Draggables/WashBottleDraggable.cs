@@ -1,0 +1,280 @@
+using UnityEngine;
+using System.Collections;
+
+
+public class WashBottleDraggable : MonoBehaviour, IWorldDraggable
+{
+    [SerializeField] private string id;
+    public string Id { get { return id; } }
+    private bool isinteractable = false;
+    public bool IsInteractable { get { return isinteractable; } }
+
+    [SerializeField] float dragSmooth = 15f;
+    float duration = .5f;
+    int beakerIndex;
+    bool isDragging;
+    [SerializeField] Transform[] beakers;
+    [SerializeField] Transform camTargetTrans,BeakerTargetTrans;
+
+    Coroutine attachC, notattachC, beginC, washC, afterwashC, backtoPosaAfterWashC, beakermoveC;
+    protected Vector3 washbottelposition;
+    protected Vector3 init_washbottlerotation;
+    [SerializeField] protected Vector3 offset, trgt_washbottlerotation, after_washbottlerotation;
+    
+    void CoroutineStart(Vector3 hitpoint)
+    {
+        if (beginC != null) { StopCoroutine(beginC); }
+      
+        beginC = StartCoroutine(PositionRotationLerpTowardsCam(hitpoint));
+    }
+    void CoroutineToTarget(Transform attachtransform)
+    {
+         if (attachC != null) { StopCoroutine(attachC); }
+        
+        attachC = StartCoroutine(PositoinRotateToTarget(attachtransform));
+    }
+    void CoroutineBackToNorma(Vector3 pos, Quaternion rot)
+    {
+        if (notattachC != null) { StopCoroutine(notattachC); }
+       
+        notattachC = StartCoroutine(PositionRotationBackToNormal(pos, rot));
+
+    }
+
+    protected void CoroutineWash()
+    {
+        if(washC != null) { StopCoroutine(washC);}
+        
+        washC = StartCoroutine("WashRotation");
+    }
+
+    void CoroutineAfterWash()
+    {
+        if(afterwashC != null) { StopCoroutine (afterwashC);}
+       
+        afterwashC = StartCoroutine("AfterWash");
+    }
+
+    void CoroutineBackToPosAfterWash()
+    {
+        if(backtoPosaAfterWashC != null) { StopCoroutine(backtoPosaAfterWashC); }
+       
+        backtoPosaAfterWashC = StartCoroutine("BackToPosAferWash");
+    }
+
+    void CoroutineBeakerMove()
+    {
+        if (beakermoveC != null) { StopCoroutine(beakermoveC); }
+       
+        beakermoveC = StartCoroutine("MoveBeaker");
+    }
+    void OnEnable()
+    {
+        isinteractable = true;
+        washbottelposition = transform.position;
+        init_washbottlerotation = transform.rotation.eulerAngles;
+    }
+    public void Attach(Transform attachTrans)
+    {
+        CoroutineToTarget(attachTrans);
+    }
+
+    public void BeginDrag(Vector3 hitPoint)
+    {
+        //isDragging = true;
+        CoroutineStart(hitPoint);
+    }
+
+    public void Drag(Vector3 worldPosition)
+    {
+        if (!isDragging) return;
+
+        Vector3 target = worldPosition /*+ offset*/;
+
+        // Smooth movement (no jitter)
+        transform.position = Vector3.Lerp(
+            transform.position,
+            target,
+            Time.deltaTime * dragSmooth
+        );
+    }
+
+    public void EndDrag()
+    {
+       
+    }
+
+    public void Notatach(Vector3 pos, Quaternion rot)
+    {
+        CoroutineBackToNorma(pos, rot);
+    }
+    IEnumerator PositionRotationLerpTowardsCam(Vector3 hitPoint)
+    {
+        isDragging = true;
+        //offset = transform.position - hitPoint;
+        float elapsedtime = 0f;
+        Vector3 position = transform.position;
+        Vector3 target = camTargetTrans.position;
+        Quaternion startrot = transform.rotation;
+        Quaternion rotation = Quaternion.Euler(0, 0, 0);
+        while (elapsedtime < duration)
+        {
+            elapsedtime += Time.deltaTime;
+            float t = elapsedtime / duration;
+            transform.rotation = Quaternion.Slerp(startrot, rotation, t);
+            transform.position = Vector3.Slerp(position, target, t);
+            yield return null;
+
+        }
+
+           // transform.position = target;
+            if (transform.TryGetComponent<Collider>(out Collider col))
+            {
+                col.enabled = false;
+            }
+      
+    }
+
+    protected virtual IEnumerator PositoinRotateToTarget(Transform attachtransform)
+    {
+        float elapsedtime = 0f;
+        //transform.SetParent(null);
+        Quaternion startrot = transform.localRotation;
+        Quaternion endrot = attachtransform.localRotation;
+        // offset = new Vector3(.005f, 0.192f, 0.389f);
+        Vector3 startpos = transform.localPosition;
+        Vector3 endpos = attachtransform.localPosition - offset;
+        while (elapsedtime < duration)
+        {
+            elapsedtime += Time.deltaTime;
+            float t = elapsedtime / duration;
+            transform.localPosition = Vector3.Slerp(startpos, endpos, t);
+            transform.localRotation = Quaternion.Slerp(startrot, endrot, t);
+            yield return null;
+        }
+        CoroutineWash();
+    }
+
+    IEnumerator PositionRotationBackToNormal(Vector3 pos, Quaternion rot)
+    {
+        float elapsedtime = 0f;
+        Vector3 position = transform.position;
+        Vector3 target = pos;
+        Quaternion startrot = transform.rotation;
+        Quaternion rotation = rot;
+        while (elapsedtime < duration)
+        {
+            elapsedtime += Time.deltaTime;
+            float t = elapsedtime / duration;
+            transform.rotation = Quaternion.Slerp(startrot, rotation, t);
+            transform.position = Vector3.Slerp(position, target, t);
+            yield return null;
+
+        }
+      //  transform.SetParent(null);
+       // if (Vector3.Distance(position, target) < .9f)
+       // {
+            transform.position = target;
+            if (transform.TryGetComponent<Collider>(out Collider col))
+            {
+                col.enabled = true;
+            }
+    }
+
+    protected virtual IEnumerator WashRotation()
+    {
+        float elapsedTime = 0f;
+        Quaternion startRot = transform.rotation;
+        Quaternion targetRot = Quaternion.Euler(trgt_washbottlerotation); //Quaternion.Euler(0f, 87.6f, -45f);
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / duration;
+            transform.rotation = Quaternion.Slerp(startRot, targetRot, t);
+            yield return null;
+        }
+        transform.rotation = targetRot;
+        CoroutineAfterWash();
+        LessonContext.cineMachineFlowController.SwitchNextCameraInSlide();
+    }
+
+   protected virtual IEnumerator AfterWash()
+    {
+        yield return new WaitForSeconds(2f);
+        float elapsedTime = 0f;
+        Quaternion startRot = transform.rotation;
+        Quaternion targetRot = Quaternion.Euler(after_washbottlerotation); //Quaternion.Euler(180f, 0f, 180f);
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / duration;
+            transform.rotation = Quaternion.Slerp(startRot, targetRot, t);
+            yield return null;
+        }
+        transform.rotation = targetRot;
+        CoroutineBackToPosAfterWash();
+    }
+
+    IEnumerator BackToPosAferWash()
+    {
+       
+        yield return new WaitForSeconds(.5f);
+        float elapsedtime = 0f;
+        Vector3 position = transform.position;
+        Vector3 target = washbottelposition;
+        Quaternion startrot = transform.rotation;
+        Quaternion rotation = Quaternion.Euler(init_washbottlerotation);
+        while (elapsedtime < duration)
+        {
+            elapsedtime += Time.deltaTime;
+            float t = elapsedtime / duration;
+            transform.rotation = Quaternion.Slerp(startrot, rotation, t);
+            transform.position = Vector3.Slerp(position, target, t);
+            yield return null;
+
+        }
+    
+        if(Vector3.Distance(position,target) < .9)
+        {
+            transform.position = target;
+            if (transform.TryGetComponent<Collider>(out Collider col))
+            {
+                col.enabled = true;
+                CoroutineBeakerMove();
+            }
+        }
+    }
+
+    IEnumerator MoveBeaker()
+    {
+        Transform beakerTrans;
+        Debug.Log(beakerIndex);
+        //OTHER PROJECTS SCRIPT CHANGE NEEDED TO MAINTAIN SAME SCRIPTS TO ALL PROJECTS
+        if (beakers.Length > 0)
+        {
+            beakerTrans = beakers[beakerIndex];
+            float elapsedtime = 0f;
+            Vector3 position = beakerTrans.position;
+            Vector3 target = BeakerTargetTrans.position;
+            while (elapsedtime < duration)
+            {
+                elapsedtime += Time.deltaTime;
+                float t = elapsedtime / duration;
+                beakerTrans.position = Vector3.Slerp(position, target, t);
+                yield return null;
+            }
+            beakerTrans.position = target;
+            beakerIndex++;
+            if (Vector3.Distance(position, target) < .9f)
+            {
+                beakerTrans.gameObject.SetActive(false);
+            }
+        }
+    }
+    void OnDisable()
+    {
+        isinteractable = false;
+    }
+}
