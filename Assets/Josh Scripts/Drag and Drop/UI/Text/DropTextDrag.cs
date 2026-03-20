@@ -4,13 +4,13 @@ using UnityEngine.EventSystems;
 public class DropTextDrag : UIDropText
 {
     [SerializeField] CanvasGroup snapcg;
-    [SerializeField] UIDragText forAnsDrag;
+  //  [SerializeField] UIDragText forAnsDrag;
     RectTransform recttransform;
 
     void Start()
     {
         recttransform = GetComponent<RectTransform>();
-        forAnsDrag.enabled = false;
+       // forAnsDrag.enabled = false;
     }
     public override void OnDrop(PointerEventData eventData)
     {
@@ -23,7 +23,7 @@ public class DropTextDrag : UIDropText
             dragged.bigTextcanvasGroup.alpha = 0f;
             dragged.bigTextrectTransform.position = recttransform.position;
             this.enabled = false;
-            forAnsDrag.enabled = true;
+           // forAnsDrag.enabled = true;
             Show();
         }
     }

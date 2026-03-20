@@ -12,7 +12,7 @@ public class AllOptionsSelected : MonoBehaviour
         selectioncount++;
         if(selectioncount > totalSelectionCount)
         {
-            LessonContext.lessonFlowController.LFC_CurrentTimingPromptIndex++;
+           // LessonContext.lessonFlowController.LFC_CurrentTimingPromptIndex++;
             LessonEvents.RaiseShowTimingPrompts(true, LessonContext.lessonFlowController.LFC_CurrentTimingPromptIndex);
             LessonContext.lessonFlowController.slideCompletionState[LessonContext.lessonFlowController.LFC_CurrentSlide] = true;
             LessonEvents.RaiseSetNextButtonState(true);

@@ -40,7 +40,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _DepthStrength: 1.5
-    - _FillHeight: 0.309
+    - _FillHeight: 0.22
     - _FresnelPower: 4
     - _IntersectionFade: 1
     - _SurfaceSmooth: 0.012

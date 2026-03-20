@@ -8,13 +8,32 @@ public class WashBottleDraggablePSMat : WashBottleDraggable
     [SerializeField] Material mat;
     float currfluidamount;
     [SerializeField] float fillamount,fillduration = 1f;
+    float duration = .5f;
 
     void Awake()
     {
         mat = waterMaterial.material;
     }
 
-
+    protected override IEnumerator PositoinRotateToTarget(Transform attachtransform)
+    {
+        float elapsedtime = 0f;
+        //transform.SetParent(null);
+        Quaternion startrot = transform.localRotation;
+        Quaternion endrot = attachtransform.localRotation;
+        // offset = new Vector3(.005f, 0.192f, 0.389f);
+        Vector3 startpos = transform.localPosition;
+        Vector3 endpos = attachtransform.localPosition + offset;
+        while (elapsedtime < duration)
+        {
+            elapsedtime += Time.deltaTime;
+            float t = elapsedtime / duration;
+            transform.localPosition = Vector3.Slerp(startpos, endpos, t);
+            transform.localRotation = Quaternion.Slerp(startrot, endrot, t);
+            yield return null;
+        }
+        base.CoroutineWash();
+    }
     protected override IEnumerator WashRotation()
     {
       float startval = mat.GetFloat("_FillHeight");

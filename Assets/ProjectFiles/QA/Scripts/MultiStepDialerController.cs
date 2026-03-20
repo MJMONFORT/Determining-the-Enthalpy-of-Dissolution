@@ -125,6 +125,7 @@ public class MultiStepDialerController : MonoBehaviour
         else
         {
             AutoFillDownBoxes();
+  ;
         }
     }
 
@@ -145,6 +146,8 @@ public class MultiStepDialerController : MonoBehaviour
 
     public void AutoFillAll()
     {
+        LessonContext.lessonFlowController.slideCompletionState[LessonContext.lessonFlowController.LFC_CurrentSlide] = true;
+        LessonEvents.RaiseSetNextButtonState(true);
         for (int i = 0; i < manualAnswers.Length; i++)
         {
             dialFields[i].text = manualAnswers[i].ToString();

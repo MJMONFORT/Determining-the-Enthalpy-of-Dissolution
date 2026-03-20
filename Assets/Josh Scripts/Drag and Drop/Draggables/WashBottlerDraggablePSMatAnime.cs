@@ -9,6 +9,11 @@ public class WashBottlerDraggablePSMatAnime : WashBottleDraggable
     float duration = .5f;
     float currfluidamount;
     [SerializeField] float fillamount, fillduration = 1f;
+    enum ChargeOfValue { Pve, Nve  };
+    enum SpaceOfObj { Local,World};
+
+    [SerializeField] ChargeOfValue chargeOfValue;
+    [SerializeField] SpaceOfObj spaceOfObj;
     void Awake()
     {
         mat = waterMaterial.material;
@@ -16,22 +21,106 @@ public class WashBottlerDraggablePSMatAnime : WashBottleDraggable
 
     protected override IEnumerator PositoinRotateToTarget(Transform attachtransform)
     {
-        float elapsedtime = 0f;
-        //transform.SetParent(null);
-        Quaternion startrot = transform.rotation;
-        Quaternion endrot = attachtransform.rotation;
-        // offset = new Vector3(.005f, 0.192f, 0.389f);
-        Vector3 startpos = transform.position;
-        Vector3 endpos = attachtransform.position + offset;
-        while (elapsedtime < duration)
+        switch(spaceOfObj)
         {
-            elapsedtime += Time.deltaTime;
-            float t = elapsedtime / duration;
-            transform.position = Vector3.Slerp(startpos, endpos, t);
-            transform.rotation = Quaternion.Slerp(startrot, endrot, t);
-            yield return null;
+
+            case SpaceOfObj.World :
+
+                switch (chargeOfValue)
+                {
+                    case ChargeOfValue.Pve :
+                        { 
+                        float elapsedtime = 0f;
+                        //transform.SetParent(null);
+                        Quaternion startrot = transform.rotation;
+                        Quaternion endrot = attachtransform.rotation;
+                        // offset = new Vector3(.005f, 0.192f, 0.389f);
+                        Vector3 startpos = transform.position;
+                        Vector3 endpos = attachtransform.position + offset;
+                        while (elapsedtime < duration)
+                        {
+                            elapsedtime += Time.deltaTime;
+                            float t = elapsedtime / duration;
+                            transform.position = Vector3.Slerp(startpos, endpos, t);
+                            transform.rotation = Quaternion.Slerp(startrot, endrot, t);
+                            yield return null;
+                        }
+                        CoroutineWash();
+                        }
+                        break;
+                    case ChargeOfValue.Nve:
+                        { 
+                        float elapsedtime = 0f;
+                        //transform.SetParent(null);
+                        Quaternion startrot = transform.rotation;
+                        Quaternion endrot = attachtransform.rotation;
+                        // offset = new Vector3(.005f, 0.192f, 0.389f);
+                        Vector3 startpos = transform.position;
+                        Vector3 endpos = attachtransform.position - offset;
+                        while (elapsedtime < duration)
+                        {
+                            elapsedtime += Time.deltaTime;
+                            float t = elapsedtime / duration;
+                            transform.position = Vector3.Slerp(startpos, endpos, t);
+                            transform.rotation = Quaternion.Slerp(startrot, endrot, t);
+                            yield return null;
+                        }
+                        CoroutineWash();
+                        }
+                        break;
+                }
+            break;
+
+            case SpaceOfObj.Local:
+
+                switch (chargeOfValue)
+                {
+                    case ChargeOfValue.Pve:
+                        {
+                            float elapsedtime = 0f;
+                            //transform.SetParent(null);
+                            Quaternion startrot = transform.localRotation;
+                            Quaternion endrot = attachtransform.localRotation;
+                            // offset = new Vector3(.005f, 0.192f, 0.389f);
+                            Vector3 startpos = transform.localPosition;
+                            Vector3 endpos = attachtransform.localPosition + offset;
+                            while (elapsedtime < duration)
+                            {
+                                elapsedtime += Time.deltaTime;
+                                float t = elapsedtime / duration;
+                                transform.localPosition = Vector3.Slerp(startpos, endpos, t);
+                                transform.localRotation = Quaternion.Slerp(startrot, endrot, t);
+                                yield return null;
+                            }
+                            CoroutineWash();
+                        }
+                        break;
+                    case ChargeOfValue.Nve:
+                        {
+                            float elapsedtime = 0f;
+                            //transform.SetParent(null);
+                            Quaternion startrot = transform.localRotation;
+                            Quaternion endrot = attachtransform.localRotation;
+                            // offset = new Vector3(.005f, 0.192f, 0.389f);
+                            Vector3 startpos = transform.position;
+                            Vector3 endpos = attachtransform.position - offset;
+                            while (elapsedtime < duration)
+                            {
+                                elapsedtime += Time.deltaTime;
+                                float t = elapsedtime / duration;
+                                transform.position = Vector3.Slerp(startpos, endpos, t);
+                                transform.localRotation = Quaternion.Slerp(startrot, endrot, t);
+                                yield return null;
+                            }
+                            CoroutineWash();
+                        }
+                        break;
+                }
+
+                break;
+
         }
-        CoroutineWash();
+       
     }
     protected override IEnumerator WashRotation()
     {
