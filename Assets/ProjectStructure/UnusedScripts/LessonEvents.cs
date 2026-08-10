@@ -14,10 +14,15 @@ public static class LessonEvents
     public static event Action<int> InfoPrompts;
     public static event Action<bool,int> TimingPrompts;
     public static event Action<bool> SetNextButtonState;
+    public static event Action<bool> SetPrevButtonState;
 
 
     // Interaction
     public static event Action<string> DragCompleted;
+
+    // Animation gating
+    public static event Action<int> InteractionSettled;
+    public static event Action<int> AnimationEnded;
 
 
     public static void RaiseNext()
@@ -59,5 +64,17 @@ public static class LessonEvents
     public static void RaiseSetNextButtonState(bool state)
     {
         SetNextButtonState?.Invoke(state);
+    }
+    public static void RaiseSetPrevButtonState(bool state)
+    {
+        SetPrevButtonState?.Invoke(state);
+    }
+    public static void RaiseInteractionSettled(int slide)
+    {
+        InteractionSettled?.Invoke(slide);
+    }
+    public static void RaiseAnimationEnded(int slide)
+    {
+        AnimationEnded?.Invoke(slide);
     }
 }

@@ -109,7 +109,7 @@ public class BeakerDragable : MonoBehaviour, IWorldDraggable
         }
         transform.position = endpos;
 
-
+        LessonEvents.RaiseInteractionSettled(LessonContext.lessonFlowController.LFC_CurrentSlide);
         LessonContext.lessonFlowController.slideCompletionState[LessonContext.lessonFlowController.LFC_CurrentSlide] = true;
         LessonEvents.RaiseSetNextButtonState(true);
         if (transform.TryGetComponent<Collider>(out Collider col))

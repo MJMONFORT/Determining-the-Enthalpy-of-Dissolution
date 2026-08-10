@@ -16,6 +16,7 @@ TagManager:
   - thermometer
   - stirrer
   - cardBoard
+  - Numpad
   layers:
   - Default
   - TransparentFX
@@ -25,8 +26,8 @@ TagManager:
   - UI
   - Thermometer
   - Stirer
-  - 
-  - 
+  - DraggableLayer
+  - DropLayer
   - 
   - 
   - 

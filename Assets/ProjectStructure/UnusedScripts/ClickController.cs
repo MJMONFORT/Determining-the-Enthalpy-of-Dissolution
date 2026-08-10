@@ -28,6 +28,7 @@ public class ClickController : MonoBehaviour
             {
                LessonEvents.RaiseShowTimingPrompts(true, 0);
             }
+            LessonEvents.RaiseInteractionSettled(LessonContext.lessonFlowController.LFC_CurrentSlide);
             LessonContext.lessonFlowController.slideCompletionState[LessonContext.lessonFlowController.LFC_CurrentSlide] = true;
             LessonEvents.RaiseSetNextButtonState(true);
 

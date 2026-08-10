@@ -21,107 +21,28 @@ public class WashBottlerDraggablePSMatAnime : WashBottleDraggable
 
     protected override IEnumerator PositoinRotateToTarget(Transform attachtransform)
     {
-        switch(spaceOfObj)
+        float clipLength = anim.GetCurrentAnimatorClipInfo(0)[0].clip.length;
+        yield return new WaitForSeconds(clipLength);
+
+        float elapsedtime = 0f;
+        Quaternion startrot = transform.rotation;
+        Quaternion endrot = BeakerTargetTrans.rotation;
+        Vector3 startpos = transform.position;
+        Vector3 endpos = BeakerTargetTrans.position; //transform.parent.TransformPoint(BeakerTargetTrans.localPosition);
+
+        while (elapsedtime < duration)
         {
-
-            case SpaceOfObj.World :
-
-                switch (chargeOfValue)
-                {
-                    case ChargeOfValue.Pve :
-                        { 
-                        float elapsedtime = 0f;
-                        //transform.SetParent(null);
-                        Quaternion startrot = transform.rotation;
-                        Quaternion endrot = attachtransform.rotation;
-                        // offset = new Vector3(.005f, 0.192f, 0.389f);
-                        Vector3 startpos = transform.position;
-                        Vector3 endpos = attachtransform.position + offset;
-                        while (elapsedtime < duration)
-                        {
-                            elapsedtime += Time.deltaTime;
-                            float t = elapsedtime / duration;
-                            transform.position = Vector3.Slerp(startpos, endpos, t);
-                            transform.rotation = Quaternion.Slerp(startrot, endrot, t);
-                            yield return null;
-                        }
-                        CoroutineWash();
-                        }
-                        break;
-                    case ChargeOfValue.Nve:
-                        { 
-                        float elapsedtime = 0f;
-                        //transform.SetParent(null);
-                        Quaternion startrot = transform.rotation;
-                        Quaternion endrot = attachtransform.rotation;
-                        // offset = new Vector3(.005f, 0.192f, 0.389f);
-                        Vector3 startpos = transform.position;
-                        Vector3 endpos = attachtransform.position - offset;
-                        while (elapsedtime < duration)
-                        {
-                            elapsedtime += Time.deltaTime;
-                            float t = elapsedtime / duration;
-                            transform.position = Vector3.Slerp(startpos, endpos, t);
-                            transform.rotation = Quaternion.Slerp(startrot, endrot, t);
-                            yield return null;
-                        }
-                        CoroutineWash();
-                        }
-                        break;
-                }
-            break;
-
-            case SpaceOfObj.Local:
-
-                switch (chargeOfValue)
-                {
-                    case ChargeOfValue.Pve:
-                        {
-                            float elapsedtime = 0f;
-                            //transform.SetParent(null);
-                            Quaternion startrot = transform.localRotation;
-                            Quaternion endrot = attachtransform.localRotation;
-                            // offset = new Vector3(.005f, 0.192f, 0.389f);
-                            Vector3 startpos = transform.localPosition;
-                            Vector3 endpos = attachtransform.localPosition + offset;
-                            while (elapsedtime < duration)
-                            {
-                                elapsedtime += Time.deltaTime;
-                                float t = elapsedtime / duration;
-                                transform.localPosition = Vector3.Slerp(startpos, endpos, t);
-                                transform.localRotation = Quaternion.Slerp(startrot, endrot, t);
-                                yield return null;
-                            }
-                            CoroutineWash();
-                        }
-                        break;
-                    case ChargeOfValue.Nve:
-                        {
-                            float elapsedtime = 0f;
-                            //transform.SetParent(null);
-                            Quaternion startrot = transform.localRotation;
-                            Quaternion endrot = attachtransform.localRotation;
-                            // offset = new Vector3(.005f, 0.192f, 0.389f);
-                            Vector3 startpos = transform.position;
-                            Vector3 endpos = attachtransform.position - offset;
-                            while (elapsedtime < duration)
-                            {
-                                elapsedtime += Time.deltaTime;
-                                float t = elapsedtime / duration;
-                                transform.position = Vector3.Slerp(startpos, endpos, t);
-                                transform.localRotation = Quaternion.Slerp(startrot, endrot, t);
-                                yield return null;
-                            }
-                            CoroutineWash();
-                        }
-                        break;
-                }
-
-                break;
-
+            elapsedtime += Time.deltaTime;
+            float t = elapsedtime / duration;
+            transform.position = Vector3.Slerp(startpos, endpos, t);
+            transform.rotation = Quaternion.Slerp(startrot, endrot, t);
+            yield return null;
         }
-       
+        transform.position = endpos;
+        transform.rotation = endrot;
+        CoroutineWash();
     }
+
     protected override IEnumerator WashRotation()
     {
         float startval = mat.GetFloat("_FillHeight");
@@ -148,9 +69,145 @@ public class WashBottlerDraggablePSMatAnime : WashBottleDraggable
     protected override IEnumerator AfterWash()
     {
         yield return base.AfterWash();
+        yield return null;
+        LessonEvents.RaiseInteractionSettled(LessonContext.lessonFlowController.LFC_CurrentSlide);
         anim.Play("CardboardDown");
         LessonContext.lessonFlowController.slideCompletionState[LessonContext.lessonFlowController.LFC_CurrentSlide] = true;
         LessonEvents.RaiseSetNextButtonState(true);
     }
+
+    //protected override IEnumerator PositoinRotateToTarget(Transform attachtransform)
+    //{
+    //    switch(spaceOfObj)
+    //    {
+
+    //        case SpaceOfObj.World :
+
+    //            switch (chargeOfValue)
+    //            {
+    //                case ChargeOfValue.Pve :
+    //                    { 
+    //                    float elapsedtime = 0f;
+    //                    //transform.SetParent(null);
+    //                    Quaternion startrot = transform.rotation;
+    //                    Quaternion endrot = attachtransform.rotation;
+    //                    // offset = new Vector3(.005f, 0.192f, 0.389f);
+    //                    Vector3 startpos = transform.position;
+    //                        Vector3 endpos = BeakerTargetTrans.position;//attachtransform.position + offset;
+    //                    while (elapsedtime < duration)
+    //                    {
+    //                        elapsedtime += Time.deltaTime;
+    //                        float t = elapsedtime / duration;
+    //                        transform.position = Vector3.Slerp(startpos, endpos, t);
+    //                        transform.rotation = Quaternion.Slerp(startrot, endrot, t);
+    //                        yield return null;
+    //                    }
+    //                    CoroutineWash();
+    //                    }
+    //                    break;
+    //                case ChargeOfValue.Nve:
+    //                    { 
+    //                    float elapsedtime = 0f;
+    //                    //transform.SetParent(null);
+    //                    Quaternion startrot = transform.rotation;
+    //                    Quaternion endrot = attachtransform.rotation;
+    //                    // offset = new Vector3(.005f, 0.192f, 0.389f);
+    //                    Vector3 startpos = transform.position;
+    //                    Vector3 endpos = attachtransform.position - offset;
+    //                    while (elapsedtime < duration)
+    //                    {
+    //                        elapsedtime += Time.deltaTime;
+    //                        float t = elapsedtime / duration;
+    //                        transform.position = Vector3.Slerp(startpos, endpos, t);
+    //                        transform.rotation = Quaternion.Slerp(startrot, endrot, t);
+    //                        yield return null;
+    //                    }
+    //                    CoroutineWash();
+    //                    }
+    //                    break;
+    //            }
+    //        break;
+
+    //        case SpaceOfObj.Local:
+
+    //            switch (chargeOfValue)
+    //            {
+    //                case ChargeOfValue.Pve:
+    //                    {
+    //                        float elapsedtime = 0f;
+    //                        //transform.SetParent(null);
+    //                        Quaternion startrot = transform.localRotation;
+    //                        Quaternion endrot = attachtransform.localRotation;
+    //                        // offset = new Vector3(.005f, 0.192f, 0.389f);
+    //                        Vector3 startpos = transform.localPosition;
+    //                        Vector3 endpos = attachtransform.localPosition + offset;
+    //                        while (elapsedtime < duration)
+    //                        {
+    //                            elapsedtime += Time.deltaTime;
+    //                            float t = elapsedtime / duration;
+    //                            transform.localPosition = Vector3.Slerp(startpos, endpos, t);
+    //                            transform.localRotation = Quaternion.Slerp(startrot, endrot, t);
+    //                            yield return null;
+    //                        }
+    //                        CoroutineWash();
+    //                    }
+    //                    break;
+    //                case ChargeOfValue.Nve:
+    //                    {
+    //                        float elapsedtime = 0f;
+    //                        //transform.SetParent(null);
+    //                        Quaternion startrot = transform.localRotation;
+    //                        Quaternion endrot = attachtransform.localRotation;
+    //                        // offset = new Vector3(.005f, 0.192f, 0.389f);
+    //                        Vector3 startpos = transform.position;
+    //                        Vector3 endpos = attachtransform.position - offset;
+    //                        while (elapsedtime < duration)
+    //                        {
+    //                            elapsedtime += Time.deltaTime;
+    //                            float t = elapsedtime / duration;
+    //                            transform.position = Vector3.Slerp(startpos, endpos, t);
+    //                            transform.localRotation = Quaternion.Slerp(startrot, endrot, t);
+    //                            yield return null;
+    //                        }
+    //                        CoroutineWash();
+    //                    }
+    //                    break;
+    //            }
+
+    //            break;
+
+    //    }
+
+    //}
+    //protected override IEnumerator WashRotation()
+    //{
+    //    float startval = mat.GetFloat("_FillHeight");
+    //    float endval = fillamount;
+    //    LessonContext.lessonFlowController.ShowCurrentPromptIteratted();
+    //    yield return base.WashRotation();
+    //    waterPour.Play();
+    //    if (waterPour.isPlaying)
+    //    {
+    //        float elapsedTime = 0f;
+    //        while (elapsedTime < fillduration)
+    //        {
+    //            elapsedTime += Time.deltaTime;
+    //            float t = elapsedTime / fillduration;
+    //            currfluidamount = Mathf.Lerp(startval, endval, t);
+    //            mat.SetFloat("_FillHeight", currfluidamount);
+    //            yield return null;
+    //        }
+    //        mat.SetFloat("_FillHeight", endval);
+    //        waterPour.Stop();
+    //    }
+    //}
+
+    //protected override IEnumerator AfterWash()
+    //{
+    //    yield return base.AfterWash();
+    //    anim.Play("CardboardDown");
+    //    LessonContext.lessonFlowController.slideCompletionState[LessonContext.lessonFlowController.LFC_CurrentSlide] = true;
+    //    LessonEvents.RaiseSetNextButtonState(true);
+    //}
 }
 

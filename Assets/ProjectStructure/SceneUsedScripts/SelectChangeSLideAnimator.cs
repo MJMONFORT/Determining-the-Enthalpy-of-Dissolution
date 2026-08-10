@@ -23,7 +23,6 @@ public class SelectChangeSLideAnimator : ClickController
     {
         animator.enabled = true;
         alreadyOn = true;
-        LessonContext.lessonFlowController.Advance();
     }
 
     protected override void OnDisable()

@@ -14,7 +14,7 @@ public class WashBottleDraggable : MonoBehaviour, IWorldDraggable
     int beakerIndex;
     bool isDragging;
     [SerializeField] Transform[] beakers;
-    [SerializeField] Transform camTargetTrans,BeakerTargetTrans;
+    [SerializeField] protected Transform camTargetTrans,BeakerTargetTrans;
 
     Coroutine attachC, notattachC, beginC, washC, afterwashC, backtoPosaAfterWashC, beakermoveC;
     protected Vector3 washbottelposition;

@@ -61,8 +61,10 @@ public class BeakerdragRotAnim : BeakerDragable
 
         transform.rotation = endrot;
         gameObject.SetActive(false);
+        LessonEvents.RaiseInteractionSettled(LessonContext.lessonFlowController.LFC_CurrentSlide);
         LessonContext.lessonFlowController.slideCompletionState[LessonContext.lessonFlowController.LFC_CurrentSlide] = true;
         LessonEvents.RaiseSetNextButtonState(true);
+        LessonEvents.RaiseAnimationEnded(LessonContext.lessonFlowController.LFC_CurrentSlide);
     }
 
 }

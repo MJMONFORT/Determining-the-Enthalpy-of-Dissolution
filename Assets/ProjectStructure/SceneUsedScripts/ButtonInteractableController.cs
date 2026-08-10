@@ -4,19 +4,27 @@ using UnityEngine.UI;
 public class ButtonInteractableController : MonoBehaviour
 {
     [SerializeField] Button nextButton;
+    [SerializeField] Button prevButton;
 
     void OnEnable()
     {
-        LessonEvents.SetNextButtonState += SetState;
+        LessonEvents.SetNextButtonState += SetNextState;
+        LessonEvents.SetPrevButtonState += SetPrevState;
     }
 
     void OnDisable()
     {
-        LessonEvents.SetNextButtonState -= SetState;
+        LessonEvents.SetNextButtonState -= SetNextState;
+        LessonEvents.SetPrevButtonState -= SetPrevState;
     }
 
-    void SetState(bool interactable)
+    void SetNextState(bool interactable)
     {
         nextButton.interactable = interactable;
+    }
+
+    void SetPrevState(bool interactable)
+    {
+        prevButton.interactable = interactable;
     }
 }

@@ -9,5 +9,6 @@ public class AnimatinEventController : MonoBehaviour
         activate[0].SetActive(true);
         LessonContext.lessonFlowController.slideCompletionState[LessonContext.lessonFlowController.LFC_CurrentSlide] = true;
         LessonEvents.RaiseSetNextButtonState(true);
+        LessonEvents.RaiseAnimationEnded(LessonContext.lessonFlowController.LFC_CurrentSlide);
     }
 }
