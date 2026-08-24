@@ -21,8 +21,12 @@ public class WashBottlerDraggablePSMatAnime : WashBottleDraggable
 
     protected override IEnumerator PositoinRotateToTarget(Transform attachtransform)
     {
-        float clipLength = anim.GetCurrentAnimatorClipInfo(0)[0].clip.length;
-        yield return new WaitForSeconds(clipLength);
+        if (anim != null)
+        {
+            AnimatorClipInfo[] clips = anim.GetCurrentAnimatorClipInfo(0);
+            if (clips.Length > 0)
+                yield return new WaitForSeconds(clips[0].clip.length);
+        }
 
         float elapsedtime = 0f;
         Quaternion startrot = transform.rotation;
@@ -71,7 +75,8 @@ public class WashBottlerDraggablePSMatAnime : WashBottleDraggable
         yield return base.AfterWash();
         yield return null;
         LessonEvents.RaiseInteractionSettled(LessonContext.lessonFlowController.LFC_CurrentSlide);
-        anim.Play("CardboardDown");
+        if (anim != null)
+            anim.Play("CardboardDown");
         LessonContext.lessonFlowController.slideCompletionState[LessonContext.lessonFlowController.LFC_CurrentSlide] = true;
         LessonEvents.RaiseSetNextButtonState(true);
     }

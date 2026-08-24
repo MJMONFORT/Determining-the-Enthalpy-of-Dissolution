@@ -12,6 +12,8 @@ public class Draggable : MonoBehaviour, IWorldDraggable
     [SerializeField] Vector3 camHoldOffset;
     [SerializeField] float dropDuration = 0.5f;
     [SerializeField] float returnDuration = 0.5f;
+    [Tooltip("Positive = hold further from the camera, negative = closer. 0 keeps the pickup depth.")]
+    [SerializeField] float depthOffset = 0f;
 
     [Header("Drop")]
     [SerializeField] bool reparentOnDrop;
@@ -25,6 +27,7 @@ public class Draggable : MonoBehaviour, IWorldDraggable
 
     public string Id => id;
     public bool IsInteractable => isinteractable;
+    public float DepthOffset => depthOffset;
     public Vector3 DragStartPos => dragStartPos;
     public Quaternion DragStartRot => dragStartRot;
     public bool HasCamOffset => camHoldOffset != Vector3.zero;

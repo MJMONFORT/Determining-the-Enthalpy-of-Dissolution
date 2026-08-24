@@ -13,7 +13,11 @@ public class BeakerDragable : MonoBehaviour, IWorldDraggable
     private bool isinteractable = false;
     public bool IsInteractable { get { return isinteractable; } }
 
-    protected Coroutine attachC, notattachC, beginC;
+    [Tooltip("Positive = hold further from the camera, negative = closer. 0 keeps the pickup depth.")]
+    [SerializeField] protected float depthOffset = 0f;
+    public float DepthOffset { get { return depthOffset; } }
+
+    protected Coroutine attachC, notattachC;
     [SerializeField] protected float dragSmooth = 15f;
     protected bool isDragging;
     [SerializeField] protected Transform camTrans;
@@ -26,31 +30,31 @@ public class BeakerDragable : MonoBehaviour, IWorldDraggable
     {
         isinteractable = true;
     }
-    protected virtual void CoroutineStart(Vector3 hitpoint)
-    {
-        if (beginC != null) { StopCoroutine(beginC); }
-
-        beginC = StartCoroutine(PositionRotationLerpTowardsCam(hitpoint));
-    }
     protected virtual void CoroutineToTarget(Transform attachtransform)
     {
         if (attachC != null) { StopCoroutine(attachC); }
+        if (notattachC != null) { StopCoroutine(notattachC); notattachC = null; }
         attachC = StartCoroutine(PositoinToTarget(attachtransform));
     }
     protected void CoroutineBackToNorma(Vector3 pos, Quaternion rot)
     {
         if (notattachC != null) { StopCoroutine(notattachC);}
+        if (attachC != null) { StopCoroutine(attachC); attachC = null; }
         notattachC = StartCoroutine(PositionRotationBackToNormal(pos, rot));
 
     }
     public virtual void Attach(Transform attachTrans)
     {
+        isDragging = false;
         CoroutineToTarget(attachTrans);
     }
 
     public void BeginDrag(Vector3 hitPoint)
     {
-        CoroutineStart(hitPoint);
+        isDragging = true;
+
+        if (transform.TryGetComponent<Collider>(out Collider col))
+            col.enabled = false;
     }
 
     public void Drag(Vector3 worldPosition)
@@ -68,29 +72,8 @@ public class BeakerDragable : MonoBehaviour, IWorldDraggable
 
     public void Notatach(Vector3 pos, Quaternion rot)
     {
+        isDragging = false;
         CoroutineBackToNorma(pos, rot);
-    }
-
-    protected IEnumerator PositionRotationLerpTowardsCam(Vector3 hitPoint)
-    {
-        isDragging = true;
-     
-        float elapsedtime = 0f;
-        Vector3 position = transform.position;
-        Vector3 target = camTrans.position;
-        while (elapsedtime < duration)
-        {
-            elapsedtime += Time.deltaTime;
-            float t = elapsedtime / duration;
-            transform.position = Vector3.Slerp(position, target, t);
-            yield return null;
-
-        }
-         transform.position = target;
-        if (transform.TryGetComponent<Collider>(out Collider col))
-        {
-            col.enabled = false;
-        }
     }
 
     protected virtual IEnumerator PositoinToTarget(Transform attachtransform)
@@ -120,15 +103,13 @@ public class BeakerDragable : MonoBehaviour, IWorldDraggable
             {
                 if (Vector3.Distance(startpos, endpos) < dropTargetdist)
                 {
-                    Debug.Log(Vector3.Distance(startpos, endpos));
-
                     this.gameObject.SetActive(false);
                     go[0].SetActive(true);
-                    if (go[0].activeSelf)
+                    if (go[0].activeSelf && LessonContext.animator != null && !string.IsNullOrEmpty(animationName))
                     {
                         LessonContext.animator.Play(animationName);
                     }
-                    
+
                 }
             }
         }

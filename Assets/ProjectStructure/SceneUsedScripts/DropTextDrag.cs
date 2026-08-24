@@ -1,10 +1,13 @@
+using MorphologyOfDifferentPlantGroupsCryptograms;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class DropTextDrag : UIDropText
 {
     [SerializeField] CanvasGroup snapcg;
-  //  [SerializeField] UIDragText forAnsDrag;
+    //  [SerializeField] UIDragText forAnsDrag;
+    [SerializeField] CanvasGroup highlighter;
+   
     RectTransform recttransform;
 
     void Start()
@@ -34,6 +37,9 @@ public class DropTextDrag : UIDropText
         snapcg.blocksRaycasts = true;
         snapcg.interactable = true;
         LessonContext.lessonFlowController.slideCompletionState[LessonContext.lessonFlowController.LFC_CurrentSlide] = true;
+        ButtonHighlightPulse scripthighlighter = highlighter.gameObject.GetComponent<ButtonHighlightPulse>();
+        scripthighlighter.enabled = false;
+        highlighter.alpha = 0;
         LessonEvents.RaiseSetNextButtonState(true);
     }
 }

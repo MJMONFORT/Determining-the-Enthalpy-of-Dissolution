@@ -8,7 +8,12 @@ public class NailWorldDraggable : MonoBehaviour,IWorldDraggable
 
     private bool isinteractable = false;
    
-    public bool IsInteractable { get { return isinteractable; } } 
+    public bool IsInteractable { get { return isinteractable; } }
+
+    [Tooltip("Positive = hold further from the camera, negative = closer. 0 keeps the pickup depth.")]
+    [SerializeField] float depthOffset = 0f;
+    public float DepthOffset { get { return depthOffset; } }
+
     float duration = .2f;
     [SerializeField] Transform camTargetPos/*, parenTrans*/;
     Coroutine nailrot,nailtoTarget,nailbacktodefault;

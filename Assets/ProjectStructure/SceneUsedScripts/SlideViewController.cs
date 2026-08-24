@@ -141,6 +141,14 @@ public class SlideViewController : MonoBehaviour
         panel.textTMP.text = data.text;
         panel.background.sizeDelta = data.size;
 
+        // Stretch text to fill the background with the panel's padding.
+        var rt = panel.textTMP.rectTransform;
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.offsetMin = new Vector2(panel.padLeft, panel.padBottom);
+        rt.offsetMax = new Vector2(-panel.padRight, -panel.padTop);
+
         SetVisible(panel.canvasGroup, true);
     }
 
@@ -158,6 +166,12 @@ public class PromptPanel
     public CanvasGroup canvasGroup;
     public TextMeshProUGUI textTMP;
     public RectTransform background;
+
+    [Header("Inner Text Padding")]
+    public float padLeft = 25f;
+    public float padRight = 25f;
+    public float padTop = 25f;
+    public float padBottom = 25f;
 }
 
 [System.Serializable]

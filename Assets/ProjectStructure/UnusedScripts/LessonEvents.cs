@@ -21,6 +21,7 @@ public static class LessonEvents
     public static event Action<string> DragCompleted;
 
     // Animation gating
+    public static event Action<int> InteractionStarted;
     public static event Action<int> InteractionSettled;
     public static event Action<int> AnimationEnded;
 
@@ -68,6 +69,10 @@ public static class LessonEvents
     public static void RaiseSetPrevButtonState(bool state)
     {
         SetPrevButtonState?.Invoke(state);
+    }
+    public static void RaiseInteractionStarted(int slide)
+    {
+        InteractionStarted?.Invoke(slide);
     }
     public static void RaiseInteractionSettled(int slide)
     {

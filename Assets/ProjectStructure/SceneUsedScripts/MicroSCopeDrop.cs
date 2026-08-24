@@ -7,19 +7,13 @@ public class MicroSCopeDrop : WroldDrop
     {
         LessonContext.Init_MicroSlide(animator);
     }
+    // Only called once the drop has already been accepted, so no id check here.
     public override void DestroyHighlighter()
     {
-        for(int i = 0;i < acceptedId.Length;i++)
+        if (animator != null)
         {
-            if (Accept(acceptedId[i]))
-            {
-                if (animator != null)
-                {
-                    animator.enabled = true;
-                }
-            }
+            animator.enabled = true;
         }
-        
     }
 
     public override bool Accept(string draggableId)

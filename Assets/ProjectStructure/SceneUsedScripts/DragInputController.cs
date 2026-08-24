@@ -88,10 +88,14 @@ public class DragInputController : MonoBehaviour
             // Debug.Log("presssed");
             currentTransform = ((MonoBehaviour)draggable).transform; //hit.collider.transform;
 
-            depth = Vector3.Dot(currentTransform.position - raycastCamera.transform.position,raycastCamera.transform.forward);
+            depth = Vector3.Dot(currentTransform.position - raycastCamera.transform.position, raycastCamera.transform.forward) + current.DepthOffset;
             startPosition = currentTransform.position;
             startrotation = currentTransform.rotation;
             current.BeginDrag(hit.point);
+
+            // Lets highlighters hide as soon as the drag starts, rather than waiting
+            // for the drop sequence to settle (which never happens on a rejected drop).
+            LessonEvents.RaiseInteractionStarted(LessonContext.lessonFlowController.LFC_CurrentSlide);
         }
     }
 
@@ -115,17 +119,23 @@ public class DragInputController : MonoBehaviour
             Ray ray = raycastCamera.ScreenPointToRay(PointerPosition());
 
             bool droppedOnZone = false;
-            if (Physics.Raycast(ray, out RaycastHit hit, 200f))
-            {      
-                var zone = hit.collider.GetComponent<WroldDrop>();
-                Debug.Log(zone);
-                if (zone != null)
-                {              
-                    current.Attach(zone.transform);
-                    Debug.Log(zone.transform.position);
-                    droppedOnZone = zone.Accept(current.Id);
-                    zone.DestroyHighlighter();
-                }
+
+            // Nothing in the scene is layered, so a single Raycast returns whatever
+            // collider happens to be nearest and the real zone behind it is missed.
+            // Walk every hit front to back and take the first zone that accepts this id.
+            RaycastHit[] hits = Physics.RaycastAll(ray, 200f);
+            System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                var zone = hits[i].collider.GetComponent<WroldDrop>();
+                if (zone == null) continue;
+                if (!zone.Accept(current.Id)) continue;
+
+                current.Attach(zone.transform);
+                zone.DestroyHighlighter();
+                droppedOnZone = true;
+                break;
             }
 
             if (!droppedOnZone && currentTransform != null)

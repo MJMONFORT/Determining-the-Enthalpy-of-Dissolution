@@ -9,6 +9,10 @@ public class WashBottleDraggable : MonoBehaviour, IWorldDraggable
     private bool isinteractable = false;
     public bool IsInteractable { get { return isinteractable; } }
 
+    [Tooltip("Positive = hold further from the camera, negative = closer. 0 keeps the pickup depth.")]
+    [SerializeField] protected float depthOffset = 0f;
+    public float DepthOffset { get { return depthOffset; } }
+
     [SerializeField] float dragSmooth = 15f;
     float duration = .5f;
     int beakerIndex;
@@ -16,27 +20,23 @@ public class WashBottleDraggable : MonoBehaviour, IWorldDraggable
     [SerializeField] Transform[] beakers;
     [SerializeField] protected Transform camTargetTrans,BeakerTargetTrans;
 
-    Coroutine attachC, notattachC, beginC, washC, afterwashC, backtoPosaAfterWashC, beakermoveC;
+    Coroutine attachC, notattachC, washC, afterwashC, backtoPosaAfterWashC, beakermoveC;
     protected Vector3 washbottelposition;
     protected Vector3 init_washbottlerotation;
     [SerializeField] protected Vector3 offset, trgt_washbottlerotation, after_washbottlerotation;
     
-    void CoroutineStart(Vector3 hitpoint)
-    {
-        if (beginC != null) { StopCoroutine(beginC); }
-      
-        beginC = StartCoroutine(PositionRotationLerpTowardsCam(hitpoint));
-    }
     void CoroutineToTarget(Transform attachtransform)
     {
          if (attachC != null) { StopCoroutine(attachC); }
-        
+        if (notattachC != null) { StopCoroutine(notattachC); notattachC = null; }
+
         attachC = StartCoroutine(PositoinRotateToTarget(attachtransform));
     }
     void CoroutineBackToNorma(Vector3 pos, Quaternion rot)
     {
         if (notattachC != null) { StopCoroutine(notattachC); }
-       
+        if (attachC != null) { StopCoroutine(attachC); attachC = null; }
+
         notattachC = StartCoroutine(PositionRotationBackToNormal(pos, rot));
 
     }
@@ -76,25 +76,26 @@ public class WashBottleDraggable : MonoBehaviour, IWorldDraggable
     }
     public void Attach(Transform attachTrans)
     {
+        isDragging = false;
         CoroutineToTarget(attachTrans);
     }
 
     public void BeginDrag(Vector3 hitPoint)
     {
-        //isDragging = true;
-        CoroutineStart(hitPoint);
+        isDragging = true;
+
+        if (transform.TryGetComponent<Collider>(out Collider col))
+            col.enabled = false;
     }
 
     public void Drag(Vector3 worldPosition)
     {
         if (!isDragging) return;
 
-        Vector3 target = worldPosition /*+ offset*/;
-
         // Smooth movement (no jitter)
         transform.position = Vector3.Lerp(
             transform.position,
-            target,
+            worldPosition,
             Time.deltaTime * dragSmooth
         );
     }
@@ -106,33 +107,8 @@ public class WashBottleDraggable : MonoBehaviour, IWorldDraggable
 
     public void Notatach(Vector3 pos, Quaternion rot)
     {
+        isDragging = false;
         CoroutineBackToNorma(pos, rot);
-    }
-    IEnumerator PositionRotationLerpTowardsCam(Vector3 hitPoint)
-    {
-        isDragging = true;
-        //offset = transform.position - hitPoint;
-        float elapsedtime = 0f;
-        Vector3 position = transform.position;
-        Vector3 target = camTargetTrans.position;
-        Quaternion startrot = transform.rotation;
-        Quaternion rotation = Quaternion.Euler(0, 0, 0);
-        while (elapsedtime < duration)
-        {
-            elapsedtime += Time.deltaTime;
-            float t = elapsedtime / duration;
-            transform.rotation = Quaternion.Slerp(startrot, rotation, t);
-            transform.position = Vector3.Slerp(position, target, t);
-            yield return null;
-
-        }
-
-           // transform.position = target;
-            if (transform.TryGetComponent<Collider>(out Collider col))
-            {
-                col.enabled = false;
-            }
-      
     }
 
     protected virtual IEnumerator PositoinRotateToTarget(Transform attachtransform)

@@ -11,6 +11,10 @@ namespace MorphologyOfDifferentPlantGroupsCryptograms
         [SerializeField] float maxAlpha = 1f;
         [SerializeField] float pulseDuration = 0.6f;
 
+        [Tooltip("Pulse as soon as this object is enabled instead of waiting for the Next button event. " +
+                 "Use for highlighters that must draw attention while the user still has work to do.")]
+        [SerializeField] bool pulseOnEnable;
+
         CanvasGroup canvasGroup;
         Coroutine pulseRoutine;
 
@@ -21,12 +25,19 @@ namespace MorphologyOfDifferentPlantGroupsCryptograms
 
         void OnEnable()
         {
+            if (pulseOnEnable)
+            {
+                StartPulse();
+                return;
+            }
+
             LessonEvents.SetNextButtonState += OnNextButtonStateChanged;
         }
 
         void OnDisable()
         {
-            LessonEvents.SetNextButtonState -= OnNextButtonStateChanged;
+            if (!pulseOnEnable)
+                LessonEvents.SetNextButtonState -= OnNextButtonStateChanged;
 
             if (pulseRoutine != null)
             {
@@ -43,7 +54,7 @@ namespace MorphologyOfDifferentPlantGroupsCryptograms
 
         void StartPulse()
         {
-            if (pulseRoutine != null) return;
+            if (canvasGroup == null || pulseRoutine != null) return;
             pulseRoutine = StartCoroutine(PulseLoop());
         }
 
@@ -54,7 +65,9 @@ namespace MorphologyOfDifferentPlantGroupsCryptograms
                 StopCoroutine(pulseRoutine);
                 pulseRoutine = null;
             }
-            canvasGroup.alpha = 0f;
+
+            if (canvasGroup != null)
+                canvasGroup.alpha = 0f;
         }
 
         IEnumerator PulseLoop()
