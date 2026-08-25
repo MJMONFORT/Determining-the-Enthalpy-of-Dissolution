@@ -9,6 +9,7 @@ public static class LessonEvents
 
     // Display
     public static event Action<int> ShowSlide;
+    public static event Action<int> SlideLeaving;
     public static event Action<int> PromptIndex;
     public static event Action<int> NegativePrompts;
     public static event Action<int> InfoPrompts;
@@ -61,6 +62,10 @@ public static class LessonEvents
     public static void RaiseShowSLide(int currslide)
     {
         ShowSlide?.Invoke(currslide);
+    }
+    public static void RaiseSlideLeaving(int leavingSlide)
+    {
+        SlideLeaving?.Invoke(leavingSlide);
     }
     public static void RaiseSetNextButtonState(bool state)
     {

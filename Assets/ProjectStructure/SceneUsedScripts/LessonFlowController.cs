@@ -56,8 +56,6 @@ public class LessonFlowController : MonoBehaviour
         currentPromptIndex = 0;
         currentTimingPromptIndex = 0;
 
-        LessonEvents.RaiseShowSLide(currentSlide);
-
         bool completed =
             slideCompletionState.ContainsKey(currentSlide) &&
             slideCompletionState[currentSlide];
@@ -131,6 +129,9 @@ public class LessonFlowController : MonoBehaviour
     {
         if (currentSlide < LessonContext.slideviewcontroller.TotalSlides - 1)
         {
+            slideCompletionState[currentSlide] = true;
+            LessonEvents.RaiseSlideLeaving(currentSlide);
+
             currentSlide++;
             LoadSlide(currentSlide);
 
@@ -147,9 +148,10 @@ public class LessonFlowController : MonoBehaviour
     {
         if (currentSlide > 0)
         {
+            LessonEvents.RaiseSlideLeaving(currentSlide);
+
             currentSlide--;
             LoadSlide(currentSlide);
-            ShowCurrentSlide();
 
             int s = currentSlide + 1;
             textGUI.text = s.ToString() + pageNum;

@@ -14,8 +14,8 @@ public class ObjectsActivationController : MonoBehaviour
     Dictionary<int, GameObject[]> D_slidesdeactivateGO = new Dictionary<int, GameObject[]>();
     Dictionary<int, MonoBehaviour[]> D_slideactivateScripts = new Dictionary<int, MonoBehaviour[]>();
 
-    [SerializeField] int currentslideGO,currentslideDeGO;
-   [SerializeField] int currentslideScripts;
+    int currentslideGO, currentslideDeGO;
+    int currentslideScripts;
     private void Awake()
     {
         foreach(var data in _gameobjectActivationdata)
@@ -46,8 +46,9 @@ public class ObjectsActivationController : MonoBehaviour
 
     private void Start()
     {
-        currentslideGO = 0;
-        currentslideScripts = 0;
+        currentslideGO = -1;
+        currentslideDeGO = -1;
+        currentslideScripts = -1;
     }
     void OnSlideChanged(int newSlideIndex)
     {
@@ -59,6 +60,9 @@ public class ObjectsActivationController : MonoBehaviour
 
     void ActivateCurrent(int index)
     {
+        // SnapshotTarget/SlideStateScope owns finished slides; don't fight it.
+        if (IsComplete(index)) return;
+
         // GameObjects
         if (H_activationslidesGO.Contains(index))
         {
@@ -106,6 +110,13 @@ public class ObjectsActivationController : MonoBehaviour
     }
 
     // ---------------- HELPERS ----------------
+
+    bool IsComplete(int slide)
+    {
+        return LessonContext.lessonFlowController != null &&
+               LessonContext.lessonFlowController.slideCompletionState.TryGetValue(slide, out bool done) &&
+               done;
+    }
 
     void GO_SetActiveForSlide(int slideIndex, bool state)
     {
